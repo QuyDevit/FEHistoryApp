@@ -197,7 +197,7 @@ const AppNavigator = () => {
       <Stack.Screen 
         name="DetailHistory" 
         component={DetailHistoryScreen}
-        options={{ headerShown: true, title:'Lịch sử kiểm tra' }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen 
         name="ReviewLesson" 

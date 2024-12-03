@@ -34,6 +34,15 @@ const DetailHistory = () => {
 
   return (
     <View style={styles.containerWrapper}>
+    <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>LỊCH SỬ KIỂM TRA</Text>
+      </View>
       <ScrollView style={styles.container}>
         <View style={styles.headerSection}>
           <Text style={styles.title}>{detailResult.titleTest}</Text>
@@ -124,6 +133,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+  },
+  header: {
+    height: 56,
+    backgroundColor: '#FF6B00',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  backButton: {
+    padding: 8,
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 24,
+  },
+  headerTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 40,
   },
   headerSection: {
     backgroundColor: '#fff',
