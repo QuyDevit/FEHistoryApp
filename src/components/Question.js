@@ -120,7 +120,7 @@ const Question = () => {
   };
 
   useEffect(() => {
-    if (type === 'exam') {
+    if (type === 'exam' && !review) {
       const timer = setInterval(() => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
@@ -152,48 +152,54 @@ const Question = () => {
 
   useEffect(() => {
     const backAction = () => {
-      Alert.alert(
-        'Dừng kiểm tra',
-        'Bạn có muốn dừng kiểm tra?',
-        [
-          {
-            text: 'Hủy',
-            onPress: () => null,
-            style: 'cancel',
-          },
-          {
-            text: 'OK',
-            onPress: () => {
-              const finalResults = {
-                correctAnswers: 0,
-                wrongAnswers: 0,
-                unanswered: totalQuestions
-              };
-
-              Object.entries(selectedAnswers).forEach(([questionIndex, answerIndex]) => {
-                const question = questions[questionIndex];
-                const isCorrect = question.choices[answerIndex]?.isCorrect;
-                
-                if (isCorrect) {
-                  finalResults.correctAnswers++;
-                } else {
-                  finalResults.wrongAnswers++;
-                }
-                finalResults.unanswered--;
-              });
-
-              navigation.replace('Result', {
-                ...finalResults,
-                totalQuestions,
-                selectedAnswers,
-                testId: testId,
-              });
+      if (type === 'exam' && !review) {
+        Alert.alert(
+          'Dừng kiểm tra',
+          'Bạn có muốn dừng kiểm tra?',
+          [
+            {
+              text: 'Hủy',
+              onPress: () => null,
+              style: 'cancel',
             },
-          },
-        ],
-        { cancelable: false }
-      );
-      return true;
+            {
+              text: 'OK',
+              onPress: () => {
+                const finalResults = {
+                  correctAnswers: 0,
+                  wrongAnswers: 0,
+                  unanswered: totalQuestions
+                };
+
+                Object.entries(selectedAnswers).forEach(([questionIndex, answerIndex]) => {
+                  const question = questions[questionIndex];
+                  const isCorrect = question.choices[answerIndex]?.isCorrect;
+                  
+                  if (isCorrect) {
+                    finalResults.correctAnswers++;
+                  } else {
+                    finalResults.wrongAnswers++;
+                  }
+                  finalResults.unanswered--;
+                });
+
+                navigation.replace('Result', {
+                  ...finalResults,
+                  totalQuestions,
+                  selectedAnswers,
+                  testId: testId,
+                });
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+        return true;
+      } else if (type === 'exam' && review) {
+        navigation.goBack();
+        return true;
+      }
+      return false;
     };
 
     const backHandler = BackHandler.addEventListener(
@@ -202,7 +208,7 @@ const Question = () => {
     );
 
     return () => backHandler.remove();
-  }, [navigation, totalQuestions, selectedAnswers, questions]);
+  }, [navigation, totalQuestions, selectedAnswers, questions, type, review]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -406,6 +412,7 @@ const Question = () => {
               
               const buttonStyle = [
                 styles.answerItem,
+                !isAnswered && styles.unansweredItem,
                 isAnswered && (isCorrect ? styles.correctAnswerItem : styles.wrongAnswerItem)
               ];
               
@@ -453,6 +460,7 @@ const Question = () => {
               
               const buttonStyle = [
                 styles.answerItem,
+                !isAnswered && styles.unansweredItem,
                 isAnswered && (isCorrect ? styles.correctAnswerItem : styles.wrongAnswerItem)
               ];
               
@@ -872,7 +880,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-  }
+  },
+  unansweredItem: {
+    backgroundColor: '#FFE082', // Màu vàng nhạt
+    borderColor: '#FFA000', // Màu viền vàng đậm
+  },
 });
 
 export default Question;
