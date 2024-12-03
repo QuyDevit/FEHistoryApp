@@ -1,10 +1,10 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from '@env';
 
-const BASE_URL = `https://39dd-2402-800-6311-1a81-e9a9-e9f1-2094-1a5e.ngrok-free.app`;
-
+const getBaseUrl = () => API_URL;
 const apiClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
@@ -14,6 +14,7 @@ const apiClient = axios.create({
 // Request interceptor
 apiClient.interceptors.request.use(
   async (config) => {
+    config.baseURL = getBaseUrl();
     const token = await AsyncStorage.getItem('userToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -88,7 +89,7 @@ export const api = {
   
   getLesson: (chapterId) => apiClient.post('/api/home/getLesson', { chapterId }),
   getTest: (gradeId) => apiClient.post('/api/home/GetTest', { gradeId }),
-  
+  getTestById: (testId) => apiClient.post('/api/home/GetTestById', { testId }),
   sendAnswer: (testId, questionId, answerId) => apiClient.post('/api/home/SendAnswer', { testId, questionId, answerId }),
   
   getListResult: () => apiClient.post('/api/home/GetListResult'),

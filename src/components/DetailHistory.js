@@ -1,14 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { fetchTestById } from '../redux/QuestionSlice';
 
 const DetailHistory = () => {
   const route = useRoute();
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const detailResult = route.params?.detailResult;
 
-  const testId = detailResult?.testId;
-
+  const testId = route.params?.testId;
+  console.log('testIdsssssssssssssssssss', testId);  
   const getAnswerStatus = (question) => {
     if (question.answerSelected === 0) {
       return {
@@ -22,6 +25,30 @@ const DetailHistory = () => {
       style: question.isCorrect ? styles.correctBadge : styles.incorrectBadge,
       textStyle: styles.resultBadgeText
     };
+  };
+
+  const handleRetry = async () => {
+    try {
+      if (!testId) {
+        Alert.alert('Lỗi', 'Không tìm thấy ID bài kiểm tra');
+        return;
+      }
+      
+      const result = await dispatch(fetchTestById(testId)).unwrap();
+      
+      navigation.replace('RedoTest', { 
+        type: 'exam', 
+        review: false,
+        testId: testId,
+      });
+    } catch (error) {
+      console.error('Error fetching test:', error);
+      Alert.alert(
+        'Lỗi',
+        'Không thể tải bài kiểm tra. Vui lòng thử lại.',
+        [{ text: 'OK' }]
+      );
+    }
   };
 
   if (!detailResult) {
@@ -109,11 +136,7 @@ const DetailHistory = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
           style={styles.button}
-          onPress={() => navigation.replace('Question', { 
-            type: 'exam', 
-            review: false,
-            testId: testId,
-          })}
+          onPress={handleRetry}
         >
           <Text style={styles.buttonText}>Làm lại</Text>
         </TouchableOpacity>

@@ -51,17 +51,24 @@ export const fetchTest = createAsyncThunk(
     }
   }
 );
-
+export const fetchTestById = createAsyncThunk(
+  'questions/fetchTestById',
+  async (testId, thunkAPI) => {
+    try {
+      const response = await api.getTestById(testId);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
 // Add new thunk for sendAnswer
 export const sendAnswer = createAsyncThunk(
   'questions/sendAnswer',
   async ({ testId, questionId, answerId }, thunkAPI) => {
-    console.log('=== sendAnswer thunk ===');
-    console.log('Sending data:', { testId, questionId, answerId });
     
     try {
       const response = await api.sendAnswer(testId, questionId, answerId);
-      console.log('API response:', response.data);
       return response.data;
     } catch (error) {
       console.error('API error:', error);
@@ -102,6 +109,7 @@ const questionSlice = createSlice({
     chapters: [],
     lesson: null,
     test: null,
+    testById: null,
     testResults: [],
     loading: false,
     loadingResults: false,
@@ -162,7 +170,6 @@ const questionSlice = createSlice({
       .addCase(fetchTest.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        console.log('error', action.payload);
       })
       // Add cases for sendAnswer
       .addCase(sendAnswer.pending, (state) => {
@@ -184,7 +191,6 @@ const questionSlice = createSlice({
       .addCase(fetchListResult.fulfilled, (state, action) => {
         state.loadingResults = false;
         state.testResults = action.payload;
-        console.log('Test Results saved:', action.payload);
       })
       .addCase(fetchListResult.rejected, (state, action) => {
         state.loadingResults = false;
@@ -203,6 +209,19 @@ const questionSlice = createSlice({
       .addCase(fetchDetailResult.rejected, (state, action) => {
         state.loadingResults = false;
         state.resultError = action.payload;
+      })
+      // Add cases for fetchTestById
+      .addCase(fetchTestById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTestById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.testById = action.payload;
+      })
+      .addCase(fetchTestById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

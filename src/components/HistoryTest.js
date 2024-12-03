@@ -15,11 +15,9 @@ const HistoryTest = () => {
     dispatch(fetchListResult());
   }, [dispatch]);
 
-  console.log('Current userId from params:', userId);
-  console.log('Raw test results:', testResults);
 
   const userResults = testResults?.filter(result => result.userId === userId) || [];
-  console.log('Filtered results:', userResults);
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -35,7 +33,7 @@ const HistoryTest = () => {
   const handleResultPress = async (testId) => {
     try {
       const detailResult = await dispatch(fetchDetailResult(testId)).unwrap();
-      navigation.navigate('DetailHistory', { detailResult });
+      navigation.navigate('DetailHistory', { testId, detailResult });
     } catch (error) {
       console.error('Failed to fetch detail result:', error);
     }

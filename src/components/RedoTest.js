@@ -5,20 +5,18 @@ import { useSelector, useDispatch } from 'react-redux';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { sendAnswer } from '../redux/QuestionSlice';
 
-const Question = () => {
+const RedoTest = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { 
     type = 'practice', 
     review = false, 
     selectedAnswers: initialSelectedAnswers = {},
-    testId: routeTestId  // Explicitly get testId from route params
+    testId: routeTestId
   } = route.params || {};
 
-  const [timeLeft, setTimeLeft] = useState(25 * 60); 
-  
-  const testData = useSelector((state) => state.questions.test);
-  const questions = testData?.listQuestion || [];
+  const testData = useSelector((state) => state.questions.testById);
+  const questions = testData || [];
   const totalQuestions = questions.length;
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -26,7 +24,7 @@ const Question = () => {
   const [results, setResults] = useState({
     correctAnswers: 0,
     wrongAnswers: 0,
-    unanswered: 0,
+    unanswered: totalQuestions,
   });
 
   const currentQuestionData = questions[currentQuestion] || {};
@@ -40,38 +38,26 @@ const Question = () => {
 
   const testId = routeTestId || testData?.id;
 
-  const handleSubmit = async () => {
-    if (type === 'exam' && testId) {
-      console.log('=== handleSubmit triggered ===');
-      console.log('All selected answers:', selectedAnswers);
-      console.log('Test ID:', testId);
+  const [timeLeft, setTimeLeft] = useState(30 * 60); 
 
-      const answerPromises = Object.entries(selectedAnswers).map(([questionIndex, answerIndex]) => {
-        const question = questions[questionIndex];
-        const selectedChoice = question.choices[answerIndex];
-        
-        return dispatch(sendAnswer({
-          testId: testId,
-          questionId: question.id,
-          answerId: selectedChoice.id
-        }));
-      });
-
-      try {
-        console.log('Waiting for all answers to be submitted...');
-        const results = await Promise.all(answerPromises);
-        console.log('All answers submitted successfully:', results);
-      } catch (error) {
-        console.error('Error submitting answers:', error);
-        Alert.alert(
-          'Lỗi',
-          'Có lỗi xảy ra khi nộp bài. Vui lòng thử lại.',
-          [{ text: 'OK' }]
-        );
-        return;
-      }
+  useEffect(() => {
+    let timer;
+    if (type === 'exam' && !review) {
+      timer = setInterval(() => {
+        setTimeLeft((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timer);
+            handleSubmit(); // Auto-submit when time runs out
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
     }
+    return () => clearInterval(timer);
+  }, [type, review]);
 
+  const handleSubmit = () => {
     const finalResults = {
       correctAnswers: 0,
       wrongAnswers: 0,
@@ -90,49 +76,13 @@ const Question = () => {
       finalResults.unanswered--;
     });
 
-    console.log('Final results:', finalResults);
-    
     navigation.replace('Result', {
-      correctAnswers: finalResults.correctAnswers,
-      wrongAnswers: finalResults.wrongAnswers,
-      unanswered: finalResults.unanswered,
+      ...finalResults,
       totalQuestions,
       selectedAnswers,
-      testId: testId,
-      questions
+      testId: routeTestId,
     });
   };
-
-  useEffect(() => {
-    if (type === 'exam' && !review) {
-      const timer = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 1) {
-            clearInterval(timer);
-            setTimeout(() => {
-              Alert.alert('Hết giờ', 'Đã hết thời gian làm bài!', [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    navigation.replace('Result', {
-                      correctAnswers: 0,
-                      wrongAnswers: 0,
-                      unanswered: 40,
-                      testId: testId,
-                    });
-                  }
-                }
-              ]);
-            }, 0);
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-
-      return () => clearInterval(timer);
-    }
-  }, [type, navigation]);
 
   useEffect(() => {
     const backAction = () => {
@@ -339,7 +289,7 @@ const Question = () => {
 
         {choices.map((choice, index) => (
           <TouchableOpacity
-            key={index}
+            key={choice.id}
             style={getOptionStyle(index)}
             onPress={() => !review && onSelect(index)}
             disabled={review}
@@ -392,12 +342,11 @@ const Question = () => {
           <View style={styles.answerGrid}>
             {Array.from({ length: totalQuestions }, (_, index) => {
               const isAnswered = selectedAnswers[index] !== undefined;
-              const isCorrect = isAnswered && questions[index]?.choices[selectedAnswers[index]]?.isCorrect;
               
               const buttonStyle = [
                 styles.answerItem,
                 !isAnswered && styles.unansweredItem,
-                isAnswered && (isCorrect ? styles.correctAnswerItem : styles.wrongAnswerItem)
+                isAnswered && styles.selectedItem
               ];
               
               return (
@@ -406,7 +355,10 @@ const Question = () => {
                   style={buttonStyle}
                   onPress={() => handleQuestionSelect(index)}
                 >
-                  <Text style={styles.answerItemText}>CÂU {index + 1}</Text>
+                  <Text style={[
+                    styles.answerItemText,
+                    isAnswered && styles.selectedItemText
+                  ]}>CÂU {index + 1}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -440,12 +392,11 @@ const Question = () => {
           <View style={styles.answerGrid}>
             {Array.from({ length: totalQuestions }, (_, index) => {
               const isAnswered = selectedAnswers[index] !== undefined;
-              const isCorrect = isAnswered && questions[index]?.choices[selectedAnswers[index]]?.isCorrect;
               
               const buttonStyle = [
                 styles.answerItem,
                 !isAnswered && styles.unansweredItem,
-                isAnswered && (isCorrect ? styles.correctAnswerItem : styles.wrongAnswerItem)
+                isAnswered && styles.selectedItem
               ];
               
               return (
@@ -454,7 +405,10 @@ const Question = () => {
                   style={buttonStyle}
                   onPress={() => handleQuestionSelect(index)}
                 >
-                  <Text style={styles.answerItemText}>CÂU {index + 1}</Text>
+                  <Text style={[
+                    styles.answerItemText,
+                    isAnswered && styles.selectedItemText
+                  ]}>CÂU {index + 1}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -653,10 +607,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 0, 0, 0.7)',
   },
   correctOption: {
-    backgroundColor: '#90EE90', // Màu xanh nhạt cho đáp án đúng
+    backgroundColor: '#90EE90', // Màu xanh nht cho đáp án đúng
   },
   wrongOption: {
-    backgroundColor: '#FFB6C1', // Màu đỏ nhạt cho đáp án sai
+    backgroundColor: '#FFB6C1', // Màu đ nhạt cho đáp án sai
   },
   reviewBackButton: {
     backgroundColor: '#FF6B00',
@@ -726,8 +680,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
   },
-  answeredItem: {
-    backgroundColor: '#90EE90',
+  unansweredItem: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#2E8B57',
+  },
+  correctAnswerItem: {
+    backgroundColor: '#90EE90', // Light green for correct answers
+    borderColor: '#4CAF50',
+  },
+  wrongAnswerItem: {
+    backgroundColor: '#FFB6C1', // Light red for wrong answers
+    borderColor: '#FF5252',
   },
   answerItemText: {
     fontSize: 16,
@@ -746,30 +709,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   continueButton: {
-    backgroundColor: '#2E8B57', // Màu xanh lá
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    backgroundColor: '#2E8B57',
   },
   submitButton: {
-    backgroundColor: '#FF6B00', // Màu cam
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    backgroundColor: '#FF6B00',
   },
   continueButtonText: {
     color: '#FFFFFF',
-    fontWeight: 'bold',
     fontSize: 16,
+    fontWeight: '600',
   },
   submitButtonText: {
     color: '#FFFFFF',
-    fontWeight: 'bold',
     fontSize: 16,
+    fontWeight: '600',
   },
   headerSubmitButton: {
     backgroundColor: '#FF6B00', 
@@ -844,14 +797,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  correctAnswerItem: {
-    backgroundColor: '#90EE90', 
-    borderColor: '#4CAF50',
-  },
-  wrongAnswerItem: {
-    backgroundColor: '#FFB6C1', 
-    borderColor: '#FF5722',
-  },
   closeModalButton: {
     backgroundColor: '#2196F3',
     padding: 12,
@@ -865,10 +810,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  unansweredItem: {
-    backgroundColor: '#FFE082', // Màu vàng nhạt
-    borderColor: '#FFA000', // Màu viền vàng đậm
+  selectedItem: {
+    backgroundColor: '#90EE90', // Light green for selected answers
+  },
+  selectedItemText: {
+    color: '#FFFFFF',
   },
 });
 
-export default Question;
+export default RedoTest;
