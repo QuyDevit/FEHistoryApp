@@ -52,16 +52,6 @@ const Result = () => {
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={styles.button}
-          onPress={() => navigation.replace('Question', { 
-            type: 'exam', 
-            review: false,
-            testId: testId 
-          })}
-        >
-          <Text style={styles.buttonText}>Làm lại</Text>
-        </TouchableOpacity>
 
         <TouchableOpacity 
           style={[styles.button, { backgroundColor: '#2196F3' }]}

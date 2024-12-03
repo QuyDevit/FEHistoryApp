@@ -90,4 +90,8 @@ export const api = {
   getTest: (gradeId) => apiClient.post('/api/home/GetTest', { gradeId }),
   
   sendAnswer: (testId, questionId, answerId) => apiClient.post('/api/home/SendAnswer', { testId, questionId, answerId }),
+  
+  getListResult: () => apiClient.post('/api/home/GetListResult'),
+  
+  getDetailResult: (testId) => apiClient.post('/api/home/DetailResult', { testId }),
 };

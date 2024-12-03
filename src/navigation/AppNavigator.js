@@ -16,6 +16,8 @@ import ResultScreen from '../screens/ResultScreen';
 import LessonScreen from '../screens/LessonScreen';
 import ReviewLessonScreen from '../screens/ReviewLessonScreen';
 import QuizScreen from '../screens/QuizScreen';
+import HistoryTestScreen from '../screens/HistoryTestScreen';
+import DetailHistoryScreen from '../screens/DetailHistoryScreen';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -186,6 +188,16 @@ const AppNavigator = () => {
         name="Lesson" 
         component={LessonScreen}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="HistoryTest" 
+        component={HistoryTestScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="DetailHistory" 
+        component={DetailHistoryScreen}
+        options={{ headerShown: true, title:'Lịch sử kiểm tra' }}
       />
       <Stack.Screen 
         name="ReviewLesson" 

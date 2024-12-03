@@ -70,15 +70,43 @@ export const sendAnswer = createAsyncThunk(
   }
 );
 
+// Add new thunks for results
+export const fetchListResult = createAsyncThunk(
+  'questions/fetchListResult',
+  async (_, thunkAPI) => {
+    try {
+      const response = await api.getListResult();
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const fetchDetailResult = createAsyncThunk(
+  'questions/fetchDetailResult',
+  async (testId, thunkAPI) => {
+    try {
+      const response = await api.getDetailResult(testId);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const questionSlice = createSlice({
   name: 'questions',
   initialState: {
     questions: [],
     chapters: [],
     lesson: null,
-    test: null, 
+    test: null,
+    testResults: [],
     loading: false,
+    loadingResults: false,
     error: null,
+    resultError: null,
     submittingAnswer: false,
     submitError: null,
   },
@@ -147,6 +175,34 @@ const questionSlice = createSlice({
       .addCase(sendAnswer.rejected, (state, action) => {
         state.submittingAnswer = false;
         state.submitError = action.payload;
+      })
+      // Add cases for fetchListResult
+      .addCase(fetchListResult.pending, (state) => {
+        state.loadingResults = true;
+        state.resultError = null;
+      })
+      .addCase(fetchListResult.fulfilled, (state, action) => {
+        state.loadingResults = false;
+        state.testResults = action.payload;
+        console.log('Test Results saved:', action.payload);
+      })
+      .addCase(fetchListResult.rejected, (state, action) => {
+        state.loadingResults = false;
+        state.resultError = action.payload;
+      })
+      
+      // Add cases for fetchDetailResult
+      .addCase(fetchDetailResult.pending, (state) => {
+        state.loadingResults = true;
+        state.resultError = null;
+      })
+      .addCase(fetchDetailResult.fulfilled, (state, action) => {
+        state.loadingResults = false;
+        state.testDetail = action.payload;
+      })
+      .addCase(fetchDetailResult.rejected, (state, action) => {
+        state.loadingResults = false;
+        state.resultError = action.payload;
       });
   },
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity , Image, Platform, BackHandler} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Home = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -20,6 +21,10 @@ const Home = () => {
         console.log('Dispatching getInfoUser...');
         const result = await dispatch(getInfoUser());
         console.log('GetInfoUser result:', result);
+        
+        if (result.payload && result.payload.id) {
+          setUserId(result.payload.id);
+        }
       } else {
         console.log('No token found');
       }
@@ -61,20 +66,11 @@ const Home = () => {
       </View>
 
       <View style={styles.menuGrid}>
-        <TouchableOpacity style={styles.menuItem}>
-          <View style={styles.iconCircle}>
-            <Image 
-              source={require('../assets/Images/12.png')} 
-              style={styles.socialIcon} 
-            />
-          </View>
-          <Text style={styles.menuItemText}>Ôn Thi Đại Học Lịch Sử</Text>
-        </TouchableOpacity>
-
+      
         <TouchableOpacity 
           style={styles.menuItem}
           onPress={() => navigation.navigate('QuizMenu', {
-            title: 'ÔN TẬP TRẮC NGHIỆM',
+            title: 'ÔN T���P TRẮC NGHIỆM',
             screenType: 'practice'
           })}
         >
@@ -117,6 +113,18 @@ const Home = () => {
             />
           </View>
           <Text style={styles.menuItemText}>Làm Bài Thi Trắc Nghiệm</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('HistoryTest', { userId: userId })}
+        >
+          <View style={styles.iconCircle}>
+            <Image 
+              source={require('../assets/Images/history.png')} 
+              style={styles.socialIcon} 
+            />
+          </View>
+          <Text style={styles.menuItemText}>Lịch Sử Kiểm Tra</Text>
         </TouchableOpacity>
       </View>
     </View>
