@@ -12,7 +12,7 @@ const Question = () => {
     type = 'practice', 
     review = false, 
     selectedAnswers: initialSelectedAnswers = {},
-    testId: routeTestId  // Explicitly get testId from route params
+    testId: routeTestId 
   } = route.params || {};
 
   const [timeLeft, setTimeLeft] = useState(25 * 60); 
@@ -41,6 +41,15 @@ const Question = () => {
   const testId = routeTestId || testData?.id;
 
   const handleSubmit = async () => {
+    if (Object.keys(selectedAnswers).length < totalQuestions) {
+        Alert.alert(
+            'Chưa hoàn thành',
+            'Bạn cần chọn đáp án cho tất cả các câu hỏi trước khi nộp bài.',
+            [{ text: 'OK' }]
+        );
+        return;
+    }
+
     if (type === 'exam' && testId) {
       console.log('=== handleSubmit triggered ===');
       console.log('All selected answers:', selectedAnswers);
@@ -136,6 +145,28 @@ const Question = () => {
 
   useEffect(() => {
     const backAction = () => {
+      if (Object.keys(selectedAnswers).length < totalQuestions) {
+        Alert.alert(
+            'Chưa hoàn thành',
+            'Bạn cần chọn đáp án cho tất cả các câu hỏi trước khi quay lại.',
+            [
+                {
+                    text: 'Hủy',
+                    onPress: () => null,
+                    style: 'cancel',
+                },
+                {
+                    text: 'OK',
+                    onPress: () => {
+                        // Không làm gì nếu người dùng chọn OK
+                    },
+                },
+            ],
+            { cancelable: false }
+        );
+        return true;
+      }
+
       if (type === 'exam' && !review) {
         Alert.alert(
           'Dừng kiểm tra',
@@ -201,13 +232,18 @@ const Question = () => {
   };
 
   const onSelect = async (index) => {
-    console.log('=== onSelect triggered ===');
-    console.log('Current question:', currentQuestion);
-    console.log('Selected index:', index);
-    console.log('Test ID:', testId);
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [currentQuestion]: index
+    }));
 
+    const isCorrect = choices[index]?.isCorrect;
+    setResults(prev => ({
+      correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
+      wrongAnswers: prev.wrongAnswers + (!isCorrect ? 1 : 0),
+      unanswered: totalQuestions - (Object.keys(selectedAnswers).length + 1)
+    }));
     try {
-      console.log('=== Sending Answer Request ===');
       console.log('Request Data:', {
         testId: testId,
         questionId: currentQuestionData.id,
@@ -220,24 +256,8 @@ const Question = () => {
         answerId: choices[index].id
       })).unwrap();
 
-      console.log('=== After sendAnswer ===');
-      console.log('testId:', testId);
-      console.log('questionId:', currentQuestionData.id);
-      console.log('answerId:', choices[index].id);
-      console.log('SendAnswer response:', response);
-
       if (response.status === true) {
-        setSelectedAnswers(prev => ({
-          ...prev,
-          [currentQuestion]: index
-        }));
-
-        const isCorrect = choices[index]?.isCorrect;
-        setResults(prev => ({
-          correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
-          wrongAnswers: prev.wrongAnswers + (!isCorrect ? 1 : 0),
-          unanswered: totalQuestions - (Object.keys(selectedAnswers).length + 1)
-        }));
+        
       } else {
         Alert.alert(
           'Lỗi',
@@ -256,21 +276,19 @@ const Question = () => {
   };
 
   const getOptionStyle = (index) => {
-    if (!review) return styles.optionButton;
-    
     const isCorrectAnswer = choices[index]?.isCorrect;
     const wasSelected = selectedAnswers[currentQuestion] === index;
-    
-    if (wasSelected && !isCorrectAnswer) {
-      return [styles.optionButton, styles.wrongOption];
+
+    if (review) {
+      if (wasSelected && !isCorrectAnswer) {
+        return [styles.optionButton, styles.wrongOption]; 
+      }
+      if (isCorrectAnswer) {
+        return [styles.optionButton, styles.correctOption]; 
+      }
     }
-    if (isCorrectAnswer) {
-      return [styles.optionButton, styles.correctOption];
-    }
-    if (wasSelected) {
-      return [styles.optionButton, styles.selectedOption];
-    }
-    return styles.optionButton;
+
+    return styles.optionButton; 
   };
 
   const panResponder = React.useMemo(
@@ -385,21 +403,19 @@ const Question = () => {
       animationType="fade"
       onRequestClose={() => setShowAnswerList(false)}
     >
-      {type === 'exam' && !review && (
+{type === 'exam' && !review && (
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Danh Sách Câu Trả Lời</Text>
           <View style={styles.answerGrid}>
             {Array.from({ length: totalQuestions }, (_, index) => {
               const isAnswered = selectedAnswers[index] !== undefined;
-              const isCorrect = isAnswered && questions[index]?.choices[selectedAnswers[index]]?.isCorrect;
-              
+
               const buttonStyle = [
                 styles.answerItem,
-                !isAnswered && styles.unansweredItem,
-                isAnswered && (isCorrect ? styles.correctAnswerItem : styles.wrongAnswerItem)
+                isAnswered && styles.selectedItem 
               ];
-              
+
               return (
                 <TouchableOpacity
                   key={index}
@@ -431,8 +447,8 @@ const Question = () => {
             </TouchableOpacity>
           </View>
         </View>
-        </View>
-      )}
+      </View>
+    )}
       {type === 'exam' && review && (
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
@@ -444,8 +460,7 @@ const Question = () => {
               
               const buttonStyle = [
                 styles.answerItem,
-                !isAnswered && styles.unansweredItem,
-                isAnswered && (isCorrect ? styles.correctAnswerItem : styles.wrongAnswerItem)
+                !isAnswered ? styles.unansweredItem : (isCorrect ? styles.correctAnswerItem : styles.wrongAnswerItem)
               ];
               
               return (
@@ -467,7 +482,7 @@ const Question = () => {
             <Text style={styles.closeModalButtonText}>Đóng</Text>
           </TouchableOpacity>
         </View>
-        </View>
+      </View>
       )}
     </Modal>
   );
@@ -868,6 +883,10 @@ const styles = StyleSheet.create({
   unansweredItem: {
     backgroundColor: '#FFE082', // Màu vàng nhạt
     borderColor: '#FFA000', // Màu viền vàng đậm
+  },
+  selectedItem:{
+    backgroundColor: '#82e0aa',
+    borderColorl:'#196f3d',
   },
 });
 

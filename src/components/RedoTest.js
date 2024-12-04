@@ -47,7 +47,7 @@ const RedoTest = () => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
             clearInterval(timer);
-            handleSubmit(); // Auto-submit when time runs out
+            handleSubmit(); 
             return 0;
           }
           return prevTime - 1;
@@ -58,6 +58,15 @@ const RedoTest = () => {
   }, [type, review]);
 
   const handleSubmit = () => {
+    if (Object.keys(selectedAnswers).length < totalQuestions) {
+        Alert.alert(
+            'Chưa hoàn thành',
+            'Bạn cần chọn đáp án cho tất cả các câu hỏi trước khi nộp bài.',
+            [{ text: 'OK' }]
+        );
+        return;
+    }
+
     const finalResults = {
       correctAnswers: 0,
       wrongAnswers: 0,
@@ -76,7 +85,7 @@ const RedoTest = () => {
       finalResults.unanswered--;
     });
 
-    navigation.replace('Result', {
+    navigation.replace('ResultRedo', {
       ...finalResults,
       totalQuestions,
       selectedAnswers,
@@ -86,55 +95,79 @@ const RedoTest = () => {
 
   useEffect(() => {
     const backAction = () => {
-      if (type === 'exam' && !review) {
-        Alert.alert(
-          'Dừng kiểm tra',
-          'Bạn có muốn dừng kiểm tra?',
-          [
-            {
-              text: 'Hủy',
-              onPress: () => null,
-              style: 'cancel',
-            },
-            {
-              text: 'OK',
-              onPress: () => {
-                const finalResults = {
-                  correctAnswers: 0,
-                  wrongAnswers: 0,
-                  unanswered: totalQuestions
-                };
-
-                Object.entries(selectedAnswers).forEach(([questionIndex, answerIndex]) => {
-                  const question = questions[questionIndex];
-                  const isCorrect = question.choices[answerIndex]?.isCorrect;
-                  
-                  if (isCorrect) {
-                    finalResults.correctAnswers++;
-                  } else {
-                    finalResults.wrongAnswers++;
-                  }
-                  finalResults.unanswered--;
-                });
-
-                navigation.replace('Result', {
-                  ...finalResults,
-                  totalQuestions,
-                  selectedAnswers,
-                  testId: testId,
-                });
-              },
-            },
-          ],
-          { cancelable: false }
-        );
-        return true;
-      } else if (type === 'exam' && review) {
-        navigation.goBack();
-        return true;
+      // Kiểm tra xem tất cả các câu hỏi đã được trả lời chưa
+      if (Object.keys(selectedAnswers).length < totalQuestions) {
+          Alert.alert(
+              'Chưa hoàn thành',
+              'Bạn cần chọn đáp án cho tất cả các câu hỏi trước khi quay lại.',
+              [
+                  {
+                      text: 'Hủy',
+                      onPress: () => null,
+                      style: 'cancel',
+                  },
+                  {
+                      text: 'OK',
+                      onPress: () => {
+                          // Không làm gì nếu người dùng chọn OK
+                      },
+                  },
+              ],
+              { cancelable: false }
+          );
+          return true; // Dừng lại nếu chưa chọn đủ đáp án
       }
-      return false;
-    };
+  
+      // Nếu đã chọn đủ đáp án, cho phép quay lại
+      if (type === 'exam' && !review) {
+          Alert.alert(
+              'Dừng kiểm tra',
+              'Bạn có muốn dừng kiểm tra?',
+              [
+                  {
+                      text: 'Hủy',
+                      onPress: () => null,
+                      style: 'cancel',
+                  },
+                  {
+                      text: 'OK',
+                      onPress: () => {
+                          const finalResults = {
+                              correctAnswers: 0,
+                              wrongAnswers: 0,
+                              unanswered: totalQuestions
+                          };
+  
+                          Object.entries(selectedAnswers).forEach(([questionIndex, answerIndex]) => {
+                              const question = questions[questionIndex];
+                              const isCorrect = question.choices[answerIndex]?.isCorrect;
+  
+                              if (isCorrect) {
+                                  finalResults.correctAnswers++;
+                              } else {
+                                  finalResults.wrongAnswers++;
+                              }
+                              finalResults.unanswered--;
+                          });
+  
+                          navigation.replace('Result', {
+                              ...finalResults,
+                              totalQuestions,
+                              selectedAnswers,
+                              testId: testId,
+                          });
+                      },
+                  },
+              ],
+              { cancelable: false }
+          );
+          return true; // Dừng lại nếu chưa chọn đủ đáp án
+      } else if (type === 'exam' && review) {
+          navigation.goBack();
+          return true;
+      }
+      return false; // Cho phép quay lại nếu đã chọn đủ đáp án
+  };
 
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
@@ -151,11 +184,17 @@ const RedoTest = () => {
   };
 
   const onSelect = async (index) => {
-    console.log('=== onSelect triggered ===');
-    console.log('Current question:', currentQuestion);
-    console.log('Selected index:', index);
-    console.log('Test ID:', testId);
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [currentQuestion]: index
+    }));
 
+    const isCorrect = choices[index]?.isCorrect;
+    setResults(prev => ({
+      correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
+      wrongAnswers: prev.wrongAnswers + (!isCorrect ? 1 : 0),
+      unanswered: totalQuestions - (Object.keys(selectedAnswers).length + 1)
+    }));
     try {
       console.log('=== Sending Answer Request ===');
       console.log('Request Data:', {
@@ -170,24 +209,8 @@ const RedoTest = () => {
         answerId: choices[index].id
       })).unwrap();
 
-      console.log('=== After sendAnswer ===');
-      console.log('testId:', testId);
-      console.log('questionId:', currentQuestionData.id);
-      console.log('answerId:', choices[index].id);
-      console.log('SendAnswer response:', response);
-
       if (response.status === true) {
-        setSelectedAnswers(prev => ({
-          ...prev,
-          [currentQuestion]: index
-        }));
-
-        const isCorrect = choices[index]?.isCorrect;
-        setResults(prev => ({
-          correctAnswers: prev.correctAnswers + (isCorrect ? 1 : 0),
-          wrongAnswers: prev.wrongAnswers + (!isCorrect ? 1 : 0),
-          unanswered: totalQuestions - (Object.keys(selectedAnswers).length + 1)
-        }));
+        
       } else {
         Alert.alert(
           'Lỗi',
@@ -345,8 +368,7 @@ const RedoTest = () => {
               
               const buttonStyle = [
                 styles.answerItem,
-                !isAnswered && styles.unansweredItem,
-                isAnswered && styles.selectedItem
+                isAnswered ? styles.selectedItem : null
               ];
               
               return (
@@ -392,11 +414,12 @@ const RedoTest = () => {
           <View style={styles.answerGrid}>
             {Array.from({ length: totalQuestions }, (_, index) => {
               const isAnswered = selectedAnswers[index] !== undefined;
-              
+              const isCorrect = questions[index]?.choices[selectedAnswers[index]]?.isCorrect;
               const buttonStyle = [
                 styles.answerItem,
-                !isAnswered && styles.unansweredItem,
-                isAnswered && styles.selectedItem
+                isAnswered 
+                  ? (isCorrect ? styles.selectedItem : styles.wrongAnswerItem)
+                  : styles.unansweredItem
               ];
               
               return (
@@ -421,7 +444,7 @@ const RedoTest = () => {
             <Text style={styles.closeModalButtonText}>Đóng</Text>
           </TouchableOpacity>
         </View>
-        </View>
+      </View>
       )}
     </Modal>
   );
@@ -431,15 +454,11 @@ const RedoTest = () => {
   };
 
   useEffect(() => {
-    console.log('Route params:', route.params);
-    console.log('Review mode:', review);
-    console.log('Initial selected answers:', initialSelectedAnswers);
-    console.log('Selected answers state:', selectedAnswers);
+
   }, [review, selectedAnswers]);
 
   useEffect(() => {
-    console.log('=== Test Data from Store ===');
-    console.log('testData:', testData);
+
   }, [testData]);
 
   return (
@@ -681,8 +700,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   unansweredItem: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFD700', // Màu vàng cho câu hỏi chưa được chọn
     borderColor: '#2E8B57',
+    borderWidth: 2,
   },
   correctAnswerItem: {
     backgroundColor: '#90EE90', // Light green for correct answers

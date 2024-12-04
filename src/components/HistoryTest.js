@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchListResult, fetchDetailResult } from '../redux/QuestionSlice';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const HistoryTest = () => {
   const dispatch = useDispatch();
@@ -10,14 +11,16 @@ const HistoryTest = () => {
   const route = useRoute();
   const userId = route.params?.userId;
   const { testResults, loadingResults, resultError } = useSelector((state) => state.questions);
+  const [userResults, setUserResults] = useState([]);
+  const [isSortedDescending, setIsSortedDescending] = useState(true);
 
   useEffect(() => {
     dispatch(fetchListResult());
   }, [dispatch]);
 
-
-  const userResults = testResults?.filter(result => result.userId === userId) || [];
-
+  useEffect(() => {
+    setUserResults(testResults?.filter(result => result.userId === userId) || []);
+  }, [testResults, userId]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -39,6 +42,16 @@ const HistoryTest = () => {
     }
   };
 
+  const handleSortToggle = () => {
+    const sortedResults = [...userResults].sort((a, b) => {
+      return isSortedDescending 
+        ? new Date(b.createdAt) - new Date(a.createdAt) 
+        : new Date(a.createdAt) - new Date(b.createdAt);
+    });
+    setUserResults(sortedResults);
+    setIsSortedDescending(!isSortedDescending);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -49,6 +62,12 @@ const HistoryTest = () => {
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>LỊCH SỬ KIỂM TRA</Text>
+        <TouchableOpacity 
+          style={styles.filterButton}
+          onPress={handleSortToggle}
+        >
+          <Icon name={isSortedDescending ? "arrow-down" : "arrow-up"} size={24} color="#fff" />
+        </TouchableOpacity>
       </View>
 
       {loadingResults ? (

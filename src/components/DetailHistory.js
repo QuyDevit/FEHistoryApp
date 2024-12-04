@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchTestById } from '../redux/QuestionSlice';
 
 const DetailHistory = () => {
@@ -9,23 +9,31 @@ const DetailHistory = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const detailResult = route.params?.detailResult;
-
   const testId = route.params?.testId;
-  console.log('testIdsssssssssssssssssss', testId);  
+
+  console.log('Received testId:', testId);
+
   const getAnswerStatus = (question) => {
+    const isCorrect = question.choices.some(
+      (choice) =>
+        choice.id === question.answerSelected && choice.isCorrect
+    );
+  
     if (question.answerSelected === 0) {
       return {
         text: 'Chưa trả lời',
         style: styles.noAnswerBadge,
-        textStyle: styles.noAnswerText
+        textStyle: styles.noAnswerText,
       };
     }
+  
     return {
-      text: question.isCorrect ? 'Đúng' : 'Sai',
-      style: question.isCorrect ? styles.correctBadge : styles.incorrectBadge,
-      textStyle: styles.resultBadgeText
+      text: isCorrect ? 'Đúng' : 'Sai',
+      style: isCorrect ? styles.correctBadge : styles.incorrectBadge,
+      textStyle: styles.resultBadgeText,
     };
   };
+  
 
   const handleRetry = async () => {
     try {
@@ -35,7 +43,12 @@ const DetailHistory = () => {
       }
       
       const result = await dispatch(fetchTestById(testId)).unwrap();
-      
+      console.log('Fetched result:', result);
+      if (!result ) {
+        Alert.alert('Lỗi', 'Không có dữ liệu cho bài kiểm tra này');
+        return;
+      }
+
       navigation.replace('RedoTest', { 
         type: 'exam', 
         review: false,
@@ -51,7 +64,10 @@ const DetailHistory = () => {
     }
   };
 
-  if (!detailResult) {
+  const testData = useSelector((state) => state.questions.testById);
+  console.log('Test Data:', testData);
+
+  if (!detailResult || !detailResult.questionsTest || detailResult.questionsTest.length === 0) {
     return (
       <View style={styles.container}>
         <Text style={styles.errorText}>Không có dữ liệu</Text>

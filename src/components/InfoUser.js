@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Platform } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useDispatch, useSelector } from 'react-redux';
-import { getInfoUser, updateInfo } from '../redux/authSlice';
+import { getInfoUser, updateInfo ,saveUserInfo} from '../redux/authSlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
@@ -44,7 +44,7 @@ const InfoUser = () => {
   const handleUpdate = async () => {
     if (isEditing) {
       try {
-        const result = await dispatch(updateInfo(formData)).unwrap();
+        const result = await dispatch(saveUserInfo(formData)).unwrap();
         if (result) {
           setIsEditing(false);
           showMessage({
@@ -88,9 +88,7 @@ const InfoUser = () => {
         
         <Text style={styles.appBarText}>THÔNG TIN CÁ NHÂN</Text>
         
-        <TouchableOpacity style={styles.moreButton}>
-          <Feather name="more-vertical" size={24} color="#fff" />
-        </TouchableOpacity>
+      
       </View>
 
       <View style={styles.contentContainer}>

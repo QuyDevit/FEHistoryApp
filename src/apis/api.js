@@ -95,4 +95,6 @@ export const api = {
   getListResult: () => apiClient.post('/api/home/GetListResult'),
   
   getDetailResult: (testId) => apiClient.post('/api/home/DetailResult', { testId }),
+
+  saveInfoUser: (userData) => apiClient.post('/api/auth/SaveInfoUser', userData),
 };

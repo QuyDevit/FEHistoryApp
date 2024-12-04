@@ -46,9 +46,7 @@ const Home = () => {
         
         <Text style={styles.appBarText}>ÔN TRẮC NGHIỆM LỊCH SỬ</Text>
         
-        <TouchableOpacity style={styles.moreButton}>
-          <Feather name="more-vertical" size={24} color="#fff" />
-        </TouchableOpacity>
+       
       </View>
 
       <View style={styles.bannerContainer}>
@@ -70,7 +68,7 @@ const Home = () => {
         <TouchableOpacity 
           style={styles.menuItem}
           onPress={() => navigation.navigate('QuizMenu', {
-            title: 'ÔN T���P TRẮC NGHIỆM',
+            title: 'ÔN TẬP TRẮC NGHIỆM',
             screenType: 'practice'
           })}
         >

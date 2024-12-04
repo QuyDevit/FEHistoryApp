@@ -19,6 +19,7 @@ import QuizScreen from '../screens/QuizScreen';
 import HistoryTestScreen from '../screens/HistoryTestScreen';
 import DetailHistoryScreen from '../screens/DetailHistoryScreen';
 import RedoTestScreen from '../screens/RedoTestScreen';
+import ResultRedoScreen from '../screens/ResultRedoScreen';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -188,6 +189,11 @@ const AppNavigator = () => {
       <Stack.Screen 
         name="Result" 
         component={ResultScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="ResultRedo" 
+        component={ResultRedoScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen 

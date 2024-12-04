@@ -115,6 +115,22 @@ export const logout = createAsyncThunk(
   }
 );
 
+export const saveUserInfo = createAsyncThunk(
+  'auth/saveUserInfo',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await api.saveInfoUser(userData);
+      if (response.data.status) {
+        return userData; // Return the updated user data
+      } else {
+        return rejectWithValue('Cập nhật thông tin không thành công');
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.msg || 'Có lỗi xảy ra');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
@@ -191,6 +207,18 @@ const authSlice = createSlice({
       .addCase(checkAuthStatus.rejected, (state, action) => {
         state.loading = 'idle';
         state.user = null;
+      })
+      .addCase(saveUserInfo.pending, (state) => {
+        state.loading = 'loading';
+      })
+      .addCase(saveUserInfo.fulfilled, (state, action) => {
+        state.loading = 'idle';
+        state.user = { ...state.user, ...action.payload }; // Update user info
+        state.error = null;
+      })
+      .addCase(saveUserInfo.rejected, (state, action) => {
+        state.loading = 'idle';
+        state.error = action.payload;
       });
   },
 });
