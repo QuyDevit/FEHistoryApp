@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import AntDesign from 'react-native-vector-icons/AntDesign'
 
 const Lesson = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { chapters, gradeId, screenType } = route.params || [];
 
-  const headerTitle = screenType === 'ontap' 
-    ? 'ÔN TẬP LỊCH SỬ CẤP 3'
+  const headerTitle = (screenType === 'ontap' || screenType === 'cap1' || screenType === 'cap2') 
+    ? 'ÔN TẬP LỊCH SỬ'
     : 'ÔN TẬP TRẮC NGHIỆM LỊCH SỬ';
 
   return (
@@ -18,7 +19,7 @@ const Lesson = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <AntDesign name="arrowleft" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{headerTitle}</Text>
       </View>
@@ -37,7 +38,7 @@ const Lesson = () => {
             onPress={() => {
               navigation.navigate('ReviewLesson', { 
                 lessonId: chapter.id,
-                type: screenType === 'ontap' ? 'ontap' : 'practice',
+                type: (screenType === 'ontap' || screenType === 'cap1' || screenType === 'cap2') ? 'ontap' : 'practice',
                 chapterName: chapter.chapterName,
                 description: chapter.description,
                 gradeId: gradeId

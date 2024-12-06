@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from '../apis/api';
 
-// Thunks for API calls
 export const fetchQuestionsByGradeAndChapter = createAsyncThunk(
   'questions/fetchByGradeAndChapter',
   async ({ gradeId, chapterId }, thunkAPI) => {
@@ -26,7 +25,6 @@ export const fetchChaptersByGrade = createAsyncThunk(
   }
 );
 
-// Thunk for fetching lesson
 export const fetchLesson = createAsyncThunk(
   'questions/fetchLesson',
   async (chapterId, thunkAPI) => {
@@ -39,7 +37,6 @@ export const fetchLesson = createAsyncThunk(
   }
 );
 
-// Add new thunk for getTest
 export const fetchTest = createAsyncThunk(
   'questions/fetchTest',
   async (gradeId, thunkAPI) => {
@@ -62,7 +59,7 @@ export const fetchTestById = createAsyncThunk(
     }
   }
 );
-// Add new thunk for sendAnswer
+
 export const sendAnswer = createAsyncThunk(
   'questions/sendAnswer',
   async ({ testId, questionId, answerId }, thunkAPI) => {
@@ -77,7 +74,6 @@ export const sendAnswer = createAsyncThunk(
   }
 );
 
-// Add new thunks for results
 export const fetchListResult = createAsyncThunk(
   'questions/fetchListResult',
   async (_, thunkAPI) => {
@@ -102,6 +98,31 @@ export const fetchDetailResult = createAsyncThunk(
   }
 );
 
+export const fetchListHisFigure = createAsyncThunk(
+  'questions/fetchListHisFigure',
+  async (_, thunkAPI) => {
+    try {
+      const response = await api.getListHisFigure();
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const fetchHistoricalFigureById = createAsyncThunk(
+  'questions/fetchHistoricalFigureById',
+  async (id, thunkAPI) => {
+    try {
+      const response = await api.getHistoricalFigureById(id);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching historical figure:', error);
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const questionSlice = createSlice({
   name: 'questions',
   initialState: {
@@ -117,6 +138,8 @@ const questionSlice = createSlice({
     resultError: null,
     submittingAnswer: false,
     submitError: null,
+    historicalFigures: [],
+    historicalFigure: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -220,6 +243,33 @@ const questionSlice = createSlice({
         state.testById = action.payload;
       })
       .addCase(fetchTestById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Add cases for fetchListHisFigure
+      .addCase(fetchListHisFigure.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchListHisFigure.fulfilled, (state, action) => {
+        state.loading = false;
+        state.historicalFigures = action.payload;
+      })
+      .addCase(fetchListHisFigure.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchHistoricalFigureById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchHistoricalFigureById.fulfilled, (state, action) => {
+        console.log('Fetched Historical Figure:', action.payload);
+        state.loading = false;
+        state.historicalFigure = action.payload;
+      })
+      .addCase(fetchHistoricalFigureById.rejected, (state, action) => {
+        console.error('Error fetching historical figure:', action.payload);
         state.loading = false;
         state.error = action.payload;
       });

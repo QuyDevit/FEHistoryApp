@@ -20,6 +20,11 @@ import HistoryTestScreen from '../screens/HistoryTestScreen';
 import DetailHistoryScreen from '../screens/DetailHistoryScreen';
 import RedoTestScreen from '../screens/RedoTestScreen';
 import ResultRedoScreen from '../screens/ResultRedoScreen';
+import HistoryMenuScreen from '../screens/HistoryMenuScreen';
+import FigureScreen from '../screens/FigureScreen';
+import ReviewFigureScreen from '../screens/ReviewFigureScreen';
+import FigureMenuScreen from '../screens/FigureMenuScreen';
+import GuessFigureScreen from '../screens/GuessFigureScreen';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -219,6 +224,31 @@ const AppNavigator = () => {
       <Stack.Screen 
         name="QuizMenu" 
         component={QuizScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="HistoryMenu" 
+        component={HistoryMenuScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="Figure" 
+        component={FigureScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="FigureMenu" 
+        component={FigureMenuScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="GuessFigure" 
+        component={GuessFigureScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="ReviewFigure" 
+        component={ReviewFigureScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen 

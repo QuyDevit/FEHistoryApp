@@ -132,36 +132,11 @@ const Register = () => {
             <Text style={styles.label}>Trường học</Text>
             <TextInput
               style={styles.input}
-              placeholder="Nhập trường học"
+              placeholder="Nhập trường học (Không bắt buộc)"
               placeholderTextColor="#A0AEC0"
               value={school}
               onChangeText={setSchool}
             />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Khối lớp</Text>
-            <View style={styles.input}>
-              {grades.map((grade) => (
-                <TouchableOpacity
-                  key={grade.id}
-                  style={[
-                    styles.gradeOption,
-                    gradeId === grade.id && styles.gradeOptionSelected
-                  ]}
-                  onPress={() => setGradeId(grade.id)}
-                >
-                  <Text
-                    style={[
-                      styles.gradeOptionText,
-                      gradeId === grade.id && styles.gradeOptionTextSelected
-                    ]}
-                  >
-                    {grade.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
           </View>
 
           <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>

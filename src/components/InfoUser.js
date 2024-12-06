@@ -20,7 +20,6 @@ const InfoUser = () => {
     school: '',
     fullName: '',
     email: '',
-    gradeId: '',
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -36,7 +35,6 @@ const InfoUser = () => {
         school: user.school || '',
         fullName: user.fullName || '',
         email: user.email || '',
-        gradeId: user.gradeId?.toString() || '',
       });
     }
   }, [user]);
@@ -69,12 +67,6 @@ const InfoUser = () => {
       setIsEditing(true);
     }
   };
-
-  const grades = [
-    { label: "Lớp 10", value: "1" },
-    { label: "Lớp 11", value: "2" },
-    { label: "Lớp 12", value: "3" }
-  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -157,28 +149,6 @@ const InfoUser = () => {
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Khối lớp</Text>
-            <Dropdown
-              style={[
-                styles.dropdown,
-                !isEditing && styles.disabledInput
-              ]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              data={grades}
-              maxHeight={300}
-              labelField="label"
-              valueField="value"
-              placeholder="Chọn khối lớp"
-              value={formData.gradeId}
-              onChange={item => {
-                setFormData({...formData, gradeId: item.value});
-              }}
-              disable={!isEditing}
-            />
-          </View>
-
           {isEditing && (
             <TouchableOpacity 
               style={[styles.button, loading === 'loading' && styles.buttonDisabled]}
@@ -258,22 +228,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 15,
     backgroundColor: '#FFFFFF',
-    color: '#1A1A1A',
-  },
-  dropdown: {
-    height: 48,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#FFFFFF',
-  },
-  placeholderStyle: {
-    fontSize: 15,
-    color: '#A0A0A0',
-  },
-  selectedTextStyle: {
-    fontSize: 15,
     color: '#1A1A1A',
   },
   button: {

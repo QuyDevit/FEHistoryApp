@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchQuestionsByGradeAndChapter, fetchLesson } from '../redux/QuestionSlice';
+import AntDesign from 'react-native-vector-icons/AntDesign'
 
 const ReviewLesson = () => {
   const navigation = useNavigation();
@@ -18,18 +19,27 @@ const ReviewLesson = () => {
   useEffect(() => {
     if (type === 'practice') {
       dispatch(fetchQuestionsByGradeAndChapter({ gradeId, chapterId: lessonId }));
-    } else if (type === 'ontap') {
-      dispatch(fetchLesson(lessonId));
+    } else if (type === 'ontap' || type === 'cap1' || type === 'cap2') {
+      dispatch(fetchLesson(lessonId)).then(() => {
+       
+      });
     }
   }, [dispatch, lessonId, type, gradeId]);
 
   const gradeMapping = {
     1: 10,
     2: 11,
-    3: 12
+    3: 12,
+    4: 13,
+    5: 4,
+    6: 5,
+    7: 6,
+    8: 7,
+    9: 8,
   };
 
   const renderLessonContent = (content) => {
+    if (!content) return null;
     const sections = content.split('\n\n');
     return sections.map((section, index) => {
       const isRomanNumeral = /^[IVX]+\./.test(section);
@@ -54,12 +64,12 @@ const ReviewLesson = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <AntDesign name="arrowleft" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           {type === 'practice' 
             ? `${chapterName} - Lớp ${gradeMapping[gradeId]}`
-            : `${lesson?.name || 'ÔN TẬP LỊCH SỬ CẤP 3'} - Lớp ${gradeMapping[gradeId]}`
+            : `${lesson?.name || 'ÔN TẬP LỊCH SỬ'} - Lớp ${gradeMapping[gradeId]}`
           }
         </Text>
       </View>

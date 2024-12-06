@@ -19,12 +19,7 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log('Request Config:', {
-      url: config.url,
-      method: config.method,
-      headers: config.headers,
-      data: config.data
-    });
+   
     return config;
   },
   (error) => {
@@ -35,7 +30,7 @@ apiClient.interceptors.request.use(
 // Response interceptor với xử lý token hết hạn
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('Response:', response.data);
+   
     
     // Nếu response chứa token mới, cập nhật vào AsyncStorage
     if (response.data?.token) {
@@ -93,8 +88,8 @@ export const api = {
   sendAnswer: (testId, questionId, answerId) => apiClient.post('/api/home/SendAnswer', { testId, questionId, answerId }),
   
   getListResult: () => apiClient.post('/api/home/GetListResult'),
-  
   getDetailResult: (testId) => apiClient.post('/api/home/DetailResult', { testId }),
-
   saveInfoUser: (userData) => apiClient.post('/api/auth/SaveInfoUser', userData),
+  getListHisFigure: () => apiClient.get('api/home/GetListHistoricalFigure'),
+  getHistoricalFigureById: (id) => apiClient.post('api/home/GetHistoricalFigureById', { Id: id }),
 };

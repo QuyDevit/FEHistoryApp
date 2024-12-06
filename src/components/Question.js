@@ -158,7 +158,7 @@ const Question = () => {
                 {
                     text: 'OK',
                     onPress: () => {
-                        // Không làm gì nếu người dùng chọn OK
+                    
                     },
                 },
             ],

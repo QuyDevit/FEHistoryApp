@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'rea
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTestById } from '../redux/QuestionSlice';
+import AntDesign from 'react-native-vector-icons/AntDesign'
 
 const DetailHistory = () => {
   const route = useRoute();
@@ -82,7 +83,7 @@ const DetailHistory = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <AntDesign name="arrowleft" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>LỊCH SỬ KIỂM TRA</Text>
       </View>

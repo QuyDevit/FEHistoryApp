@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'rea
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchChaptersByGrade, fetchLesson, fetchTest } from '../redux/QuestionSlice';
+import AntDesign from 'react-native-vector-icons/AntDesign'
 
 const QuizMenu = () => {
   const navigation = useNavigation();
@@ -12,11 +13,18 @@ const QuizMenu = () => {
   const chapters = useSelector((state) => state.questions.chapters);
   const [selectedGrade, setSelectedGrade] = useState(null);
 
-  // Add grade mapping
+
   const gradeToIdMapping = {
     10: 1,
     11: 2,
-    12: 3
+    12: 3,
+    13: 4,
+    4: 5,
+    5: 6,
+    6: 7,
+    7: 8,
+    8: 9,
+    9: 10,
   };
 
   const handleQuizPress = (grade) => {
@@ -31,7 +39,7 @@ const QuizMenu = () => {
           testId: testId
         });
       });
-    } else if (screenType === 'ontap') {
+    } else if (screenType === 'ontap' || screenType === 'cap1' || screenType === 'cap2') {
       const gradeId = gradeToIdMapping[grade];
       dispatch(fetchChaptersByGrade(gradeId));
     } else {
@@ -57,7 +65,7 @@ const QuizMenu = () => {
           style={styles.backButton}
           onPress={() => navigation.navigate('DrawerHome')}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <AntDesign name="arrowleft" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{title}</Text>
       </View>
@@ -80,15 +88,62 @@ const QuizMenu = () => {
       <ScrollView style={styles.content}>
         <View style={styles.menuGrid}>
           {screenType === 'exam' ? (
-            
             <>
+            <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(6)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/six.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Đề Thi Ngẫu Nhiên Lớp 6</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(7)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/seven.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Đề Thi Ngẫu Nhiên Lớp 7</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(8)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/eight.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Đề Thi Ngẫu Nhiên Lớp 8</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(9)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/nine.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Đề Thi Ngẫu Nhiên Lớp 9</Text>
+            </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.menuItem}
                 onPress={() => handleQuizPress(10)}
               >
                 <View style={styles.iconCircle}>
                 <Image 
-                source={require('../assets/Images/10.png')} 
+                source={require('../assets/Images/ten.png')} 
                 style={styles.socialIcon} 
                 />
                 </View>
@@ -114,7 +169,7 @@ const QuizMenu = () => {
             >
                 <View style={styles.iconCircle}>
                 <Image 
-                source={require('../assets/Images/12.png')} 
+                source={require('../assets/Images/twelve.png')} 
                 style={styles.socialIcon} 
                 />
                 </View>
@@ -123,7 +178,7 @@ const QuizMenu = () => {
 
             <TouchableOpacity 
               style={styles.menuItem}
-              onPress={() => handleQuizPress('university')}
+              onPress={() => handleQuizPress(13)}
             >
                 <View style={styles.iconCircle}>
                 <Image 
@@ -142,7 +197,7 @@ const QuizMenu = () => {
               >
                 <View style={styles.iconCircle}>
                 <Image 
-                source={require('../assets/Images/10.png')} 
+                source={require('../assets/Images/ten.png')} 
                 style={styles.socialIcon} 
                 />
                 </View>
@@ -168,23 +223,151 @@ const QuizMenu = () => {
               >
                 <View style={styles.iconCircle}>
                 <Image 
-                source={require('../assets/Images/12.png')} 
+                source={require('../assets/Images/twelve.png')} 
                 style={styles.socialIcon} 
                 />
                 </View>
                 <Text style={styles.menuItemText}>Lịch Sử Lớp 12</Text>
               </TouchableOpacity>
             </>
-          ) : (
-
+          ) :  screenType === 'cap1' ? (
             <>
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(4)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/four.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Lịch Sử Lớp 4</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(5)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/five.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Lịch Sử Lớp 5</Text>
+              </TouchableOpacity>
+            </>
+          ) :  screenType === 'cap2' ? (
+            <>
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(6)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/six.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Lịch Sử Lớp 6</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(7)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/seven.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Lịch Sử Lớp 7</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(8)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/eight.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Lịch Sử Lớp 8</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(9)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/nine.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Lịch Sử Lớp 9</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+            <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(6)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/six.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Ôn Tập Lớp 6</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(7)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/seven.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Ôn Tập Lớp 7</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(8)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/eight.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Ôn Tập Lớp 8</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => handleQuizPress(9)}
+              >
+                <View style={styles.iconCircle}>
+                <Image 
+                source={require('../assets/Images/nine.png')} 
+                style={styles.socialIcon} 
+                />
+                </View>
+                <Text style={styles.menuItemText}>Ôn Tập Lớp 9</Text>
+            </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.menuItem}
                 onPress={() => handleQuizPress(10)}
               >
                 <View style={styles.iconCircle}>
                 <Image 
-                source={require('../assets/Images/10.png')} 
+                source={require('../assets/Images/ten.png')} 
                 style={styles.socialIcon} 
                 />
                 </View>
@@ -210,7 +393,7 @@ const QuizMenu = () => {
             >
                 <View style={styles.iconCircle}>
                 <Image 
-                source={require('../assets/Images/12.png')} 
+                source={require('../assets/Images/twelve.png')} 
                 style={styles.socialIcon} 
                 />
                 </View>

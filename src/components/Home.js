@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity , Image, Platform, BackHandler} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity , Image, Platform, BackHandler, ScrollView} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
@@ -15,12 +15,12 @@ const Home = () => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       const token = await AsyncStorage.getItem('userToken');
-      console.log('Stored token:', token);
+      
 
       if (token) {
-        console.log('Dispatching getInfoUser...');
+        
         const result = await dispatch(getInfoUser());
-        console.log('GetInfoUser result:', result);
+       
         
         if (result.payload && result.payload.id) {
           setUserId(result.payload.id);
@@ -63,8 +63,34 @@ const Home = () => {
         <View style={styles.dividerLine} />
       </View>
 
-      <View style={styles.menuGrid}>
-      
+      <ScrollView style={styles.menuGrid}>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('FigureMenu')}
+        >
+          <View style={styles.iconCircle}>
+            <Image 
+              source={require('../assets/Images/man.png')} 
+              style={styles.socialIcon} 
+            />
+          </View>
+          <Text style={styles.menuItemText}>Tìm Hiểu Nhân Vật Lịch Sử</Text>
+        </TouchableOpacity>
+      <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('HistoryMenu', {
+            title: 'ÔN TẬP LỊCH SỬ',
+            screenType: 'practice'
+          })}
+        >
+          <View style={styles.iconCircle}>
+            <Image 
+              source={require('../assets/Images/scholarship.png')} 
+              style={styles.socialIcon} 
+            />
+          </View>
+          <Text style={styles.menuItemText}>Ôn Tập Lịch Sử</Text>
+        </TouchableOpacity>
         <TouchableOpacity 
           style={styles.menuItem}
           onPress={() => navigation.navigate('QuizMenu', {
@@ -79,22 +105,6 @@ const Home = () => {
             />
           </View>
           <Text style={styles.menuItemText}>Ôn Tập Trắc Nghiệm</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('QuizMenu', {
-            title: 'ÔN TẬP LỊCH SỬ CẤP 3',
-            screenType: 'ontap'
-          })}
-        >
-          <View style={styles.iconCircle}>
-            <Image 
-              source={require('../assets/Images/scholarship.png')} 
-              style={styles.socialIcon} 
-            />
-          </View>
-          <Text style={styles.menuItemText}>Ôn Tập Lịch Sử Cấp 3</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -124,7 +134,7 @@ const Home = () => {
           </View>
           <Text style={styles.menuItemText}>Lịch Sử Kiểm Tra</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -165,7 +175,8 @@ const styles = StyleSheet.create({
   menuGrid: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    marginTop: '10%',
+    marginTop: '3%',
+    marginBottom: '5%'
   },
   menuItem: {
     flexDirection: 'row',
